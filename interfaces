@@ -1,0 +1,41 @@
+
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# INTERFAZ DE LA RED 2
+auto enp0s3
+iface enp0s3 inet static
+	address 172.17.32.12
+	netmask 255.255.255.0
+
+#OPCIÓN DE RUTA ESTÁTICA
+	up ip route add 172.17.31.0/255.255.255.0 via 172.17.32.11 dev enp0s3
+
+	#REGLA PARA PAQUETES QUE VENGAN DE LA RED 1
+	up iptables -t nat -A POSTROUTING -o enp0s9 -s 172.17.31.0/24 -j MASQUERADE
+	down iptables -t nat -D POSTROUTING -o enp0s9 -s 172.17.31.0/24 -j MASQUERADE
+
+	#REGLA PARA PAQUETES QUE VENGAN DE LA RED 2
+	up iptables -t nat -A POSTROUTING -o enp0s9 -s 172.17.32.0/24 -j MASQUERADE
+	down iptables -t nat -D POSTROUTING -o enp0s9 -s 172.17.32.0/24 -j MASQUERADE
+
+# INTERFAZ DE LA RED 3
+auto enp0s8
+iface enp0s8 inet static
+	address 172.17.33.11
+	netmask 255.255.255.0	
+
+	#REGLA PARA PAQUETES QUE VENGAN DE LA RED 3
+	up iptables -t nat -A POSTROUTING -o enp0s9 -s 172.17.33.0/24 -j MASQUERADE
+	down iptables -t nat -D POSTROUTING -o enp0s9 -s 172.17.33.0/24 -j MASQUERADE
+
+#INTERFAZ DE LA RED NAT
+auto enp0s9
+iface enp0s9 inet dhcp
+
